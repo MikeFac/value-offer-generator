@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  name                String?
+  role                String    @default("bd_strategist")
+  tier                String    @default("free")
+  termsAcceptedAt     DateTime? @map("terms_accepted_at")
+  stripeCustomerId    String?   @map("stripe_customer_id")
+  stripeSubscriptionId String? @map("stripe_subscription_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  sessions      Session[]
+  monthlyUsages MonthlyUsage[]
+
+  @@map("users")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  userId         String?  @map("user_id")
+  anonymousId   String?  @map("anonymous_id")
+  verticalName   String   @map("vertical_name")
+  verticalContext Json?   @map("vertical_context")
+  valueOffer     Json?    @map("value_offer")
+  scripts        Json?    @map("scripts")
+  model          String   @default("gpt-4o-mini")
+  messageCount   Int      @default(0) @map("message_count")
+  status         String   @default("discovering")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user     User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("sessions")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  sessionId String   @map("session_id")
+  role      String
+  content   String
+  phase     String   @default("discovery")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model MonthlyUsage {
+  id           String @id @default(cuid())
+  userId       String? @map("user_id")
+  anonymousId  String? @map("anonymous_id")
+  month        Int
+  sessionCount Int    @default(1) @map("session_count")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month])
+  @@unique([anonymousId, month])
+  @@map("monthly_usages")
+}
