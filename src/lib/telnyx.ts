@@ -29,7 +29,6 @@ export async function sendSmsOtp(phone: string, code: string, userId?: string): 
         to: phone,
         text: message,
         messaging_profile_id: TELNYX_MESSAGING_PROFILE_ID || undefined,
-        sender_id: "OfferFu",
       }),
     });
 
