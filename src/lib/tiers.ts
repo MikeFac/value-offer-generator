@@ -57,11 +57,11 @@ export function getTierConfig(tier: Tier) {
   return TIERS[tier];
 }
 
-export function resolveUserTier(dbUser: { tier: string; smsConsent: boolean; phone: string | null } | null): Tier {
+export function resolveUserTier(dbUser: { tier: string; smsConsent: boolean; phone: string | null; phoneVerified: boolean } | null): Tier {
   if (!dbUser) return "anonymous";
   if (dbUser.tier === "pro") return "pro";
   if (dbUser.tier === "phone") return "phone";
-  if (dbUser.tier === "free" && dbUser.smsConsent && dbUser.phone) return "phone";
+  if (dbUser.tier === "free" && dbUser.phoneVerified && dbUser.smsConsent && dbUser.phone) return "phone";
   if (dbUser.tier === "free") return "free";
   return "anonymous";
 }

@@ -19,10 +19,9 @@ export default async function HomePage() {
 
   if (userId) {
     const dbUser = await prisma.user.findUnique({ where: { id: userId } });
-    const tier = resolveUserTier(dbUser);
-
     if (dbUser && !dbUser.termsAcceptedAt) redirect("/terms");
 
+    const tier = resolveUserTier(dbUser);
     const config = getTierConfig(tier);
     const usage = dbUser ? await getMonthlyUsage(userId) : 0;
     const remaining = config.sessionsPerMonth === Infinity ? null : config.sessionsPerMonth - usage;
@@ -35,15 +34,14 @@ export default async function HomePage() {
 
       const user = await currentUser();
       const email = user?.emailAddresses?.[0]?.emailAddress ?? "";
-      const phone = user?.phoneNumbers?.[0]?.phoneNumber ?? null;
       const { userId } = await auth();
 
       if (!userId) redirect("/sign-up");
 
       await prisma.user.upsert({
         where: { id: userId },
-        update: { email: email || undefined, phone: phone || undefined },
-        create: { id: userId, email: email || `user-${userId}@offerfu.com`, phone },
+        update: { email: email || undefined },
+        create: { id: userId, email: email || `user-${userId}@offerfu.com` },
       });
 
       const freshUser = await prisma.user.findUnique({ where: { id: userId } });
@@ -95,7 +93,7 @@ export default async function HomePage() {
                   href="/pricing"
                   className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800"
                 >
-                  Upgrade to unlimited
+                  Add Phone for Unlimited
                 </a>
               )}
               <UserButton />

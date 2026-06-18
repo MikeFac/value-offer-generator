@@ -15,12 +15,14 @@ model User {
   role                String    @default("bd_strategist")
   tier                String    @default("free")
   phoneVerified       Boolean   @default(false) @map("phone_verified")
+  phoneVerificationCode String?  @map("phone_verification_code")
+  phoneVerificationExpiry DateTime? @map("phone_verification_expiry")
   smsConsent          Boolean   @default(false) @map("sms_consent")
   smsConsentAt        DateTime? @map("sms_consent_at")
   smsConsentText      String?   @map("sms_consent_text")
   termsAcceptedAt     DateTime? @map("terms_accepted_at")
   stripeCustomerId    String?   @map("stripe_customer_id")
-  stripeSubscriptionId String? @map("stripe_subscription_id")
+  stripeSubscriptionId String?  @map("stripe_subscription_id")
   createdAt           DateTime  @default(now()) @map("created_at")
 
   sessions      Session[]

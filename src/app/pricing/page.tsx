@@ -3,12 +3,9 @@ import { prisma } from "@/lib/db/prisma";
 import { getMonthlyUsage, resolveUserTier, getTierConfig } from "@/lib/tiers";
 import { SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { headers } from "next/headers";
 
 export default async function PricingPage() {
   const { userId } = await auth();
-  const headersList = await headers();
-  const limitParam = headersList.get("referer")?.includes("limit=") ? "shown" : null;
 
   let currentTier = "anonymous";
   let sessionsUsed = 0;
@@ -56,10 +53,7 @@ export default async function PricingPage() {
               <li>No registration required</li>
             </ul>
             <div className="mt-8">
-              <Link
-                href="/"
-                className="block w-full rounded-lg border border-zinc-300 px-4 py-2 text-center text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              >
+              <Link href="/" className="block w-full rounded-lg border border-zinc-300 px-4 py-2 text-center text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800">
                 Start Free Session
               </Link>
             </div>
@@ -69,9 +63,7 @@ export default async function PricingPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Email</h2>
               {currentTier === "free" && (
-                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
-                  Current
-                </span>
+                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">Current</span>
               )}
             </div>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sign up free</p>
@@ -104,12 +96,10 @@ export default async function PricingPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Phone</h2>
               {(currentTier === "phone" || currentTier === "pro") && (
-                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
-                  Current
-                </span>
+                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">Current</span>
               )}
             </div>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Add your phone number</p>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Verify your phone number</p>
             <div className="mt-4">
               <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">$0</span>
               <span className="text-sm text-zinc-500">/month</span>
@@ -122,12 +112,9 @@ export default async function PricingPage() {
             </ul>
             <div className="mt-8">
               {currentTier === "free" ? (
-                <a
-                  href="/sign-up"
-                  className="block w-full rounded-lg bg-amber-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-amber-700"
-                >
-                  Add Phone Number
-                </a>
+                <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+                  Click "Add Phone" in any chat to upgrade.
+                </p>
               ) : currentTier === "phone" || currentTier === "pro" ? (
                 <div className="block w-full rounded-lg bg-zinc-100 px-4 py-2 text-center text-sm font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                   Unlimited access

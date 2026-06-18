@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import { AcceptTermsForm } from "./accept-terms-form";
@@ -9,14 +9,7 @@ export default async function TermsPage() {
 
   const dbUser = await prisma.user.findUnique({ where: { id: userId } });
 
-  if (dbUser?.termsAcceptedAt && dbUser?.smsConsent) redirect("/");
-
-  const user = await currentUser();
-  const phone = user?.phoneNumbers?.[0]?.phoneNumber ?? null;
-  const hasPhone = !!phone;
-  const needsSmsConsent = hasPhone && !dbUser?.smsConsent;
-
-  if (dbUser?.termsAcceptedAt && !needsSmsConsent) redirect("/");
+  if (dbUser?.termsAcceptedAt) redirect("/");
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
@@ -125,7 +118,7 @@ export default async function TermsPage() {
             9. SMS Communications
           </h2>
           <p className="mt-2">
-            By providing your phone number and checking the SMS consent box below, you agree to receive text messages from OfferFu. These may include:
+            When you add your phone number to unlock full access, you consent to receive text messages from OfferFu. These may include:
           </p>
           <ul className="mt-2 ml-4 list-disc space-y-1">
             <li>Verification codes for account security</li>
@@ -143,11 +136,10 @@ export default async function TermsPage() {
         <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
           Important: By accepting these terms, you acknowledge that the
           application owner can read all your chat messages and generated scripts.
-          {needsSmsConsent && " You also consent to receiving SMS messages from OfferFu."}
         </p>
       </div>
 
-      <AcceptTermsForm hasPhone={hasPhone} needsSmsConsent={needsSmsConsent} phone={phone} />
+      <AcceptTermsForm />
     </div>
   );
 }
