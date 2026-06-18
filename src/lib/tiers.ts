@@ -54,7 +54,7 @@ export function canCreateSession(tier: Tier, currentUsage: number): boolean {
 }
 
 export function getTierConfig(tier: Tier) {
-  return TIERS[tier];
+  return TIERS[tier] ?? TIERS.anonymous;
 }
 
 export function resolveUserTier(dbUser: { tier: string; smsConsent: boolean; phone: string | null; phoneVerified: boolean } | null): Tier {
