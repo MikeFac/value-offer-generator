@@ -97,8 +97,8 @@ export default async function HomePage() {
               )}
               {needsPhoneUpgrade && (
                 <a
-                  href="/pricing"
-                  className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800"
+                  href="/upgrade"
+                  className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
                 >
                   Book Discovery Call
                 </a>
@@ -311,6 +311,7 @@ export default async function HomePage() {
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               Add your phone. We&apos;ll book a call about growing your business.
             </p>
+            <a href="/upgrade" className="mt-2 inline-block rounded bg-amber-600 px-3 py-1 text-xs font-bold text-white hover:bg-amber-700">Book Call →</a>
           </div>
         </div>
       </main>

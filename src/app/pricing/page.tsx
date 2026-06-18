@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getMonthlyUsage, resolveUserTier, getTierConfig, TIERS } from "@/lib/tiers";
 import { SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import { PhoneTierCard } from "@/components/phone-tier-card";
 
 export default async function PricingPage() {
   const { userId } = await auth();
@@ -107,21 +108,7 @@ export default async function PricingPage() {
               {TIERS.phone.features.map((f) => <li key={f}>{f}</li>)}
             </ul>
             <div className="mt-8">
-              {currentTier === "free" ? (
-                <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  Click &quot;Book Discovery Call&quot; in any chat to upgrade.
-                </p>
-              ) : currentTier === "phone" || currentTier === "pro" ? (
-                <div className="block w-full rounded-lg bg-zinc-100 px-4 py-2 text-center text-sm font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                  Unlimited access
-                </div>
-              ) : (
-                <SignUpButton mode="redirect">
-                  <button className="block w-full rounded-lg bg-amber-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-amber-700">
-                    Get Started
-                  </button>
-                </SignUpButton>
-              )}
+              <PhoneTierCard currentTier={currentTier} />
             </div>
           </div>
         </div>

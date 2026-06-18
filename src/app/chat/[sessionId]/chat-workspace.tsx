@@ -332,8 +332,8 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
                     <button onClick={handleSave} disabled={saving} className="w-full rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300">
                       {saved ? "Saved ✓" : saving ? "Saving..." : "Save Script"}
                     </button>
-                    <button onClick={() => setShowPhoneModal(true)} className="w-full rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">
-                      Book a Discovery Call — Unlock Unlimited
+                    <button onClick={() => setShowPhoneModal(true)} className="w-full rounded-lg bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700">
+                      Book Discovery Call
                     </button>
                   </>
                 )}
