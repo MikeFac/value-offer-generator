@@ -70,8 +70,16 @@ export default async function AdminPage({
 
   const tierColors: Record<string, string> = {
     free: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+    phone: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
     pro: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
     anonymous: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+  };
+
+  const tierLabels: Record<string, string> = {
+    free: "Email",
+    phone: "Phone",
+    pro: "Pro",
+    anonymous: "Anon",
   };
 
   return (
@@ -173,7 +181,7 @@ export default async function AdminPage({
                       </span>
                       {s.user?.tier && (
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tierColors[s.user.tier] ?? "bg-zinc-100 text-zinc-600"}`}>
-                          {s.user.tier}
+                          {tierLabels[s.user.tier] ?? s.user.tier}
                         </span>
                       )}
                     </div>
@@ -237,7 +245,7 @@ export default async function AdminPage({
                       <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400 font-mono">{u.phone ?? "—"}</td>
                       <td className="px-4 py-3">
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tierColors[u.tier] ?? "bg-zinc-100 text-zinc-600"}`}>
-                          {u.tier}
+                          {tierLabels[u.tier] ?? u.tier}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">{u.role}</td>

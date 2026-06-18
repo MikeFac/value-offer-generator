@@ -19,7 +19,8 @@ type Session = {
   valueOffer: unknown | null;
   scripts: unknown | null;
   isAnonymous: boolean;
-  canSaveExport: boolean;
+  canSave: boolean;
+  canExport: boolean;
   messages: Message[];
 };
 
@@ -190,7 +191,8 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const isAnonymous = initialSession.isAnonymous;
-  const canSaveExport = initialSession.canSaveExport;
+  const canSave = initialSession.canSave;
+  const canExport = initialSession.canExport;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -309,20 +311,13 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
     complete: "Complete",
   };
 
-  const showSaveExportGate = !canSaveExport;
-  const gateMessage = isAnonymous
-    ? "Sign up free to save and export your scripts."
-    : "Accept terms & SMS consent to save and export.";
-  const gateAction = isAnonymous ? "/sign-up" : "/terms";
-  const gateLabel = isAnonymous ? "Sign Up Free" : "Accept Terms";
-
   return (
     <div className="flex h-screen flex-col">
       <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-3 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push("/")}
-            className="text-sm text-zinc-500 hover:text-zinc-900 dark:zinc-400 dark:hover:text-zinc-100"
+            className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             ← Back
           </button>
@@ -440,19 +435,42 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
           </div>
           {currentScripts !== null && (
             <div className="border-t border-zinc-200 bg-zinc-50 p-4 space-y-2 dark:border-zinc-800 dark:bg-zinc-950">
-              {showSaveExportGate ? (
+              {!canSave && isAnonymous && (
                 <div className="rounded-lg border border-zinc-200 bg-white p-4 text-center dark:border-zinc-700 dark:bg-zinc-900">
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {gateMessage}
+                    Sign up free to save your scripts.
                   </p>
                   <a
-                    href={gateAction}
+                    href="/sign-up"
                     className="mt-2 inline-block rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
                   >
-                    {gateLabel}
+                    Sign Up Free
                   </a>
                 </div>
-              ) : (
+              )}
+              {canSave && !canExport && (
+                <>
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="w-full rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                  >
+                    {saved ? "Saved ✓" : saving ? "Saving..." : "Save Script"}
+                  </button>
+                  <div className="rounded-lg border border-zinc-200 bg-white p-4 text-center dark:border-zinc-700 dark:bg-zinc-900">
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Add your phone number to export scripts and unlock unlimited sessions.
+                    </p>
+                    <a
+                      href="/pricing"
+                      className="mt-2 inline-block rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+                    >
+                      Upgrade to Unlimited
+                    </a>
+                  </div>
+                </>
+              )}
+              {canSave && canExport && (
                 <>
                   <button
                     onClick={handleSave}

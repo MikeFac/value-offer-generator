@@ -5,7 +5,7 @@ import { useState } from "react";
 
 const SMS_CONSENT_TEXT = "I agree to receive SMS messages from OfferFu. Message frequency varies. Msg & data rates may apply. Reply STOP to unsubscribe.";
 
-export function AcceptTermsForm({ phone }: { phone: string | null }) {
+export function AcceptTermsForm({ hasPhone, needsSmsConsent, phone }: { hasPhone: boolean; needsSmsConsent: boolean; phone: string | null }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [smsConsent, setSmsConsent] = useState(false);
@@ -17,8 +17,8 @@ export function AcceptTermsForm({ phone }: { phone: string | null }) {
       setError("You must accept the Terms & Conditions.");
       return;
     }
-    if (!smsConsent) {
-      setError("You must consent to SMS communications to use this service.");
+    if (needsSmsConsent && !smsConsent) {
+      setError("SMS consent is required to add your phone number.");
       return;
     }
 
@@ -27,7 +27,10 @@ export function AcceptTermsForm({ phone }: { phone: string | null }) {
     const res = await fetch("/api/terms", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ smsConsent, smsConsentText: SMS_CONSENT_TEXT }),
+      body: JSON.stringify({
+        smsConsent: needsSmsConsent ? smsConsent : undefined,
+        smsConsentText: needsSmsConsent ? SMS_CONSENT_TEXT : undefined,
+      }),
     });
     if (res.ok) {
       router.push("/");
@@ -54,22 +57,30 @@ export function AcceptTermsForm({ phone }: { phone: string | null }) {
           </span>
         </label>
 
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={smsConsent}
-            onChange={(e) => setSmsConsent(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-500 dark:border-zinc-600"
-          />
-          <span className="text-sm text-zinc-700 dark:text-zinc-300">
-            {SMS_CONSENT_TEXT}
-          </span>
-        </label>
+        {needsSmsConsent && (
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={smsConsent}
+              onChange={(e) => setSmsConsent(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-500 dark:border-zinc-600"
+            />
+            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+              {SMS_CONSENT_TEXT}
+            </span>
+          </label>
+        )}
       </div>
 
-      {phone && (
+      {hasPhone && (
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           SMS will be sent to {phone}
+        </p>
+      )}
+
+      {!hasPhone && !needsSmsConsent && (
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          You can add a phone number later to unlock export and unlimited sessions.
         </p>
       )}
 

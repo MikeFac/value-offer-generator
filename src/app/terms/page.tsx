@@ -13,6 +13,10 @@ export default async function TermsPage() {
 
   const user = await currentUser();
   const phone = user?.phoneNumbers?.[0]?.phoneNumber ?? null;
+  const hasPhone = !!phone;
+  const needsSmsConsent = hasPhone && !dbUser?.smsConsent;
+
+  if (dbUser?.termsAcceptedAt && !needsSmsConsent) redirect("/");
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
@@ -138,12 +142,12 @@ export default async function TermsPage() {
       <div className="mt-10 rounded-lg border border-zinc-200 bg-amber-50 p-4 dark:border-zinc-700 dark:bg-amber-950">
         <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
           Important: By accepting these terms, you acknowledge that the
-          application owner can read all your chat messages and generated scripts,
-          and you consent to receiving SMS messages from OfferFu.
+          application owner can read all your chat messages and generated scripts.
+          {needsSmsConsent && " You also consent to receiving SMS messages from OfferFu."}
         </p>
       </div>
 
-      <AcceptTermsForm phone={phone} />
+      <AcceptTermsForm hasPhone={hasPhone} needsSmsConsent={needsSmsConsent} phone={phone} />
     </div>
   );
 }

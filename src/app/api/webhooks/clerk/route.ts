@@ -49,20 +49,33 @@ export async function POST(req: Request) {
       ?? phoneNumbers?.[0]?.phone_number
       ?? null;
 
-    await prisma.user.upsert({
-      where: { id: userId },
-      update: {
-        email: email ?? undefined,
-        phone: phone ?? undefined,
-        phoneVerified: !!phone,
-      },
-      create: {
-        id: userId,
-        email: email ?? `user-${userId}@offerfu.com`,
-        phone,
-        phoneVerified: !!phone,
-      },
-    });
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (existingUser) {
+      const updateData: Record<string, unknown> = {
+        email: email ?? existingUser.email,
+        phone: phone ?? existingUser.phone,
+        phoneVerified: phone ? true : existingUser.phoneVerified,
+      };
+
+      if (phone && existingUser.smsConsent) {
+        updateData.tier = "phone";
+      }
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: updateData,
+      });
+    } else {
+      await prisma.user.create({
+        data: {
+          id: userId,
+          email: email ?? `user-${userId}@offerfu.com`,
+          phone,
+          phoneVerified: !!phone,
+        },
+      });
+    }
   }
 
   return NextResponse.json({ received: true });

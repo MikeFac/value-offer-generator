@@ -1,9 +1,10 @@
 import { prisma } from "./db/prisma";
 
 export const TIERS = {
-  anonymous: { sessionsPerMonth: 1, messagesPerSession: 30, model: "gpt-4o-mini" },
-  free: { sessionsPerMonth: 3, messagesPerSession: 30, model: "gpt-4o-mini" },
-  pro: { sessionsPerMonth: Infinity, messagesPerSession: Infinity, model: "gpt-4o" },
+  anonymous: { sessionsPerMonth: 1, messagesPerSession: 30, model: "gpt-4o-mini", canSave: false, canExport: false },
+  free:      { sessionsPerMonth: 3, messagesPerSession: 30, model: "gpt-4o-mini", canSave: true,  canExport: false },
+  phone:     { sessionsPerMonth: Infinity, messagesPerSession: 120, model: "gpt-4o", canSave: true, canExport: true },
+  pro:       { sessionsPerMonth: Infinity, messagesPerSession: Infinity, model: "gpt-4o", canSave: true, canExport: true },
 } as const;
 
 export type Tier = keyof typeof TIERS;
@@ -54,4 +55,13 @@ export function canCreateSession(tier: Tier, currentUsage: number): boolean {
 
 export function getTierConfig(tier: Tier) {
   return TIERS[tier];
+}
+
+export function resolveUserTier(dbUser: { tier: string; smsConsent: boolean; phone: string | null } | null): Tier {
+  if (!dbUser) return "anonymous";
+  if (dbUser.tier === "pro") return "pro";
+  if (dbUser.tier === "phone") return "phone";
+  if (dbUser.tier === "free" && dbUser.smsConsent && dbUser.phone) return "phone";
+  if (dbUser.tier === "free") return "free";
+  return "anonymous";
 }

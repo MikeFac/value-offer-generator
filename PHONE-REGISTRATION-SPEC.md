@@ -2,106 +2,128 @@
 
 ## Overview
 
-Replace email-based registration with phone-number registration via SMS OTP. Users must provide a phone number and explicitly consent to SMS marketing to use the tool beyond the anonymous session. This aligns the registration medium with the product (outbound calling), pre-qualifies leads, and ensures high-reach follow-up.
+Registration uses a progressive trust model with three tiers:
+
+1. **Anonymous** — try it free, no account
+2. **Email** — sign up with email, save scripts, 3 sessions/month
+3. **Phone** — add phone + SMS consent, unlock everything
+
+The email tier is the trust bridge. Users who won't give a phone number yet will give an email to save their work. Once they see value, the phone tier is the natural upgrade — and it gives us a high-reach follow-up channel.
 
 ## Registration Flow
 
 ### Anonymous Session (No Registration)
 1. User lands on offerfu.com, enters a vertical, clicks "Start Free"
 2. Full chat experience with GPT-4o-mini
-3. Script preview panel works, but Save and Download show "Enter your phone number to save and export"
-4. No phone number, no email, no account required
-5. One anonymous session only — second attempt redirects to phone registration
+3. Script preview panel works, but Save shows "Sign up to save" and Download shows "Add your phone to export"
+4. No email, no phone, no account required
+5. One anonymous session only — second attempt redirects to sign-up
 
-### Phone Registration (Primary Gate)
-1. User clicks "Save Script" or "Export" or tries to start a second session
-2. Registration screen appears with:
-   - Phone number input (international format, with country code selector)
-   - Checkbox: **"I agree to receive SMS messages from OfferFu. Message frequency varies. Msg & data rates may apply. Reply STOP to unsubscribe."** (required, not optional)
-   - "Send Verification Code" button
-3. Clerk handles the SMS OTP via Telnyx as the SMS provider
-4. User enters OTP
-5. Account is created with phone number as primary identifier
-6. User is redirected back to their session with full Save/Export unlocked
+### Email Registration (Free Tier)
+1. User clicks "Save Script" or tries to start a second session
+2. Redirected to Clerk sign-up (email-first)
+3. After email verification, redirected to `/terms` to accept T&Cs (data access acknowledgment)
+4. Tier set to "free" — can save scripts, 3 sessions/month
+5. Export/download still gated: "Add your phone to export and unlock unlimited sessions"
 
-### Phone + Email (Optional Enhancement)
-- After phone verification, prompt (do not require) for email: "Add an email for script delivery and backup"
-- Email is secondary — phone is the account key
+### Phone Registration (Phone Tier)
+1. Email user clicks "Add phone" or "Export" button
+2. Clerk's phone verification flow adds the phone number to their existing account
+3. Redirected to `/terms` for SMS consent (if not already given)
+4. Tier upgraded from "free" to "phone"
+5. Full access: unlimited sessions, GPT-4o, save, and export
 
-## Clerk + Telnyx Integration
+### Direct Phone Registration (New Users)
+1. User can also sign up directly with phone number from the start
+2. Clerk handles phone OTP
+3. Redirected to `/terms` for T&Cs + SMS consent
+4. Tier set to "phone" — full access immediately
+
+## Clerk Configuration
 
 ### How It Works
-- **Clerk** manages the entire auth flow: phone input, OTP verification, session cookies, user management
-- **Telnyx** is the SMS delivery provider configured inside Clerk's dashboard (cheaper than Clerk's default SMS provider)
-- **OfferFu** adds the SMS consent checkbox on top of Clerk's auth flow and stores the consent record in our database
+- **Clerk** manages the entire auth flow: email, phone, OTP, session cookies, user management
+- Both **email** and **phone** are enabled as sign-in methods
+- Email is the default sign-up method (lower friction)
+- Phone can be added later or used as primary
+- **Telnyx** is the SMS delivery provider for OTP (configured in Clerk dashboard)
 
-### Clerk Configuration Steps
-1. In the Clerk dashboard for the OfferFu application:
-   - Go to **User & Authentication → Email, Phone, Username**
+### Clerk Dashboard Steps
+1. Go to **User & Authentication → Email, Phone, Username**
+   - Enable **Email address** as a sign-in method (default)
    - Enable **Phone number** as a sign-in method
-   - Disable **Email** as a sign-in method (email becomes optional, collect after registration)
-   - Set phone number to **Required**
-2. Go to **SMS Delivery** in Clerk settings
+   - Set email to **Required**, phone to **Optional**
+2. Go to **SMS Delivery**
    - Select **Telnyx** as the SMS provider
    - Enter Telnyx API key and phone number
 3. Go to **Paths**
-   - Set Sign-in URL to `/sign-in`
-   - Set Sign-up URL to `/sign-up`
-   - Set After sign-in URL to `/`
-   - Set After sign-up URL to `/`
+   - Sign-in URL: `/sign-in`
+   - Sign-up URL: `/sign-up`
+   - After sign-in URL: `/terms` (then we redirect to `/` after consent check)
+   - After sign-up URL: `/terms`
 4. Go to **Domains & URLs**
    - Add `offerfu.com` and `www.offerfu.com`
 
-### Custom SMS Consent Flow
-Clerk's built-in phone sign-up does NOT include a TCPA-compliant SMS marketing consent checkbox. We must add this ourselves:
+### Custom Consent Flow
+Clerk's auth flow does NOT include TCPA-compliant SMS marketing consent. We add this:
 
-1. When Clerk's `<SignIn>` or `<SignUp>` component fires the `afterSignIn` or `afterSignUp` callback, we check our database for the user
-2. If the user has no `smsConsent` record, we redirect to `/terms` (which already exists and includes the SMS consent section)
-3. The T&C acceptance page now includes the SMS marketing consent checkbox
-4. On acceptance, we store `smsConsent: true`, `smsConsentAt: now()`, `smsConsentText: <exact text>` in the User table
+1. After Clerk sign-up/sign-in, check our database for the user
+2. If `termsAcceptedAt` is null → redirect to `/terms` (T&C acknowledgment)
+3. If `termsAcceptedAt` is set but `smsConsent` is false and user has phone → redirect to `/terms` (SMS consent section)
+4. If both are set → redirect to `/`
 
-This means the flow is:
-- Anonymous → chat → wants to save → Clerk sign-up (phone + OTP) → `/terms` (with SMS consent) → back to session
+## Tier Upgrade: Email → Phone
 
-## Data Model Changes
+This is the key conversion flow. When an email-only user wants to export or hits their session limit:
 
-### User Model Updates
+1. **In chat workspace:** Export button shows "Add your phone to export"
+2. **In home page:** Session limit shows "Upgrade to unlimited — add your phone number"
+3. User clicks → Clerk's `UserProfile` component with phone addition
+4. Clerk sends OTP, user verifies
+5. Clerk webhook fires `user.updated` → we sync phone to our DB
+6. Redirect to `/terms` for SMS consent
+7. On acceptance: tier upgraded to "phone", full access unlocked
+
+## Data Model
+
+### User Model
 ```
 User
-  id                String    @id @default(cuid())
-  phone             String?   @unique                              // Populated by Clerk, E.164 format
-  email             String?   @unique                              // Optional, added after registration
-  name              String?
-  role              String    @default("bd_strategist")
-  tier              String    @default("free")
-  phoneVerified     Boolean   @default(false) @map("phone_verified")
-  smsConsent        Boolean   @default(false) @map("sms_consent")
-  smsConsentAt      DateTime? @map("sms_consent_at")
-  smsConsentText    String?   @map("sms_consent_text")
-  termsAcceptedAt   DateTime? @map("terms_accepted_at")
-  stripeCustomerId  String?   @map("stripe_customer_id")
+  id                  String    @id @default(cuid())
+  phone               String?   @unique
+  email               String?   @unique
+  name                String?
+  role                String    @default("bd_strategist")
+  tier                String    @default("free")              // "anonymous", "free", "phone", "pro"
+  phoneVerified       Boolean   @default(false) @map("phone_verified")
+  smsConsent          Boolean   @default(false) @map("sms_consent")
+  smsConsentAt        DateTime? @map("sms_consent_at")
+  smsConsentText      String?   @map("sms_consent_text")
+  termsAcceptedAt     DateTime? @map("terms_accepted_at")
+  stripeCustomerId    String?   @map("stripe_customer_id")
   stripeSubscriptionId String? @map("stripe_subscription_id")
-  createdAt         DateTime  @default(now()) @map("created_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
 
-  sessions         Session[]
-  monthlyUsages    MonthlyUsage[]
+  sessions      Session[]
+  monthlyUsages MonthlyUsage[]
+  smsLogs       SmsLog[]
 
   @@map("users")
 ```
 
-### SmsLog Model (New — for audit trail)
+### SmsLog Model
 ```
 SmsLog
   id          String   @id @default(cuid())
-  userId       String?  @map("user_id")
+  userId      String?  @map("user_id")
   phone       String
   type        String                              // "otp_verify", "marketing", "transactional"
   message     String
-  twilioSid   String?   @map("twilio_sid")         // or telnyxId — rename later if needed
+  providerId  String?  @map("provider_id")
   status      String                              // "sent", "delivered", "failed"
   createdAt   DateTime  @default(now()) @map("created_at")
 
-  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("sms_logs")
 ```
@@ -114,9 +136,7 @@ The checkbox text must be:
 
 This text is stored in `smsConsentText` at the time of consent for legal proof.
 
-### T&Cs — New Section
-
-**9. SMS Communications**
+### T&Cs — Section 9 (SMS Communications)
 By providing your phone number and checking the SMS consent box, you agree to receive text messages from OfferFu. These may include:
 - Verification codes for account security
 - Notifications about your generated scripts
@@ -128,31 +148,44 @@ Message frequency varies. Standard message and data rates may apply. You can opt
 ## Frontend Changes
 
 ### Home Page
-- Anonymous view: "Start Free" button creates an anonymous session (no login)
-- Signed-out + used anonymous session: show "Sign Up to Continue" with Clerk's phone sign-in
-- Signed-in view: show session count, UserButton
-
-### Clerk Components
-- Replace `<SignInButton>` and `<SignUpButton>` with Clerk's `<SignIn>` and `<SignUp>` components configured for phone-first auth
-- After successful sign-up/sign-in, redirect to `/terms` if `smsConsent` is not yet recorded
-- After terms acceptance, redirect to `/` or back to their session
+- Anonymous view: "Start Free" button, no login required
+- Signed-in (email, no phone): show session count, "Upgrade to unlimited" CTA
+- Signed-in (phone): show session count, full access
 
 ### Chat Workspace
-- Anonymous: Save/Download buttons show "Enter your phone number to save and export"
-  - Clicking redirects to sign-up
-- Authenticated without SMS consent: redirected to `/terms`
-- Authenticated with SMS consent: full access
+- Anonymous: Save → "Sign up to save", Export → "Add your phone to export"
+- Email (free tier): Save works, Export → "Add your phone to export and unlock unlimited"
+- Phone (SMS consent): Save and Export both work
+
+### Sign-Up Flow
+- Clerk `<SignUp>` with email as default method
+- After sign-up: redirect to `/terms` for T&C acceptance
+- If user adds phone later: redirect to `/terms` for SMS consent
+- After consent: redirect to `/` or back to their session
 
 ### Terms Page
-- Add the SMS consent checkbox (required) alongside the existing T&C acceptance
-- Store consent text and timestamp on acceptance
+- Email-only users: T&C acknowledgment checkbox only
+- Phone users: T&C acknowledgment + SMS consent checkbox (both required)
+- The page auto-detects whether the user has a phone number and shows the appropriate form
+
+## Tier Configuration (Code)
+
+```typescript
+export const TIERS = {
+  anonymous: { sessionsPerMonth: 1, messagesPerSession: 30, model: "gpt-4o-mini", canSave: false, canExport: false },
+  free:      { sessionsPerMonth: 3, messagesPerSession: 30, model: "gpt-4o-mini", canSave: true,  canExport: false },
+  phone:     { sessionsPerMonth: Infinity, messagesPerSession: 120, model: "gpt-4o", canSave: true, canExport: true },
+  pro:       { sessionsPerMonth: Infinity, messagesPerSession: Infinity, model: "gpt-4o", canSave: true, canExport: true },
+};
+```
 
 ## Implementation Plan
 
-1. **Clerk dashboard**: Configure phone auth + Telnyx SMS provider
-2. **Prisma migration**: Add `phone`, `phoneVerified`, `smsConsent`, `smsConsentAt`, `smsConsentText` to User; create SmsLog table
-3. **Terms page**: Add SMS consent checkbox to the existing T&C page
-4. **Home page**: Update sign-up flow to use Clerk phone auth
-5. **Chat workspace**: Gate Save/Export behind `smsConsent === true`
-6. **Admin page**: Show phone number, SMS consent status in user table
-7. **Marketing SMS**: Future — use Telnyx API directly for between-call touchpoints
+1. **Clerk dashboard**: Enable both email and phone auth; configure Telnyx
+2. **Tiers config**: Add "phone" tier with unlimited sessions, gpt-4o, canExport
+3. **Home page**: 3-state flow (anonymous, email, phone)
+4. **Chat workspace**: 3 gate states with progressive unlock
+5. **Terms page**: Conditional SMS consent (only for phone users)
+6. **Tier upgrade flow**: Email → Phone within the app
+7. **Clerk webhook**: Sync phone/email, auto-upgrade tier on phone addition
+8. **Admin page**: Show tier column, phone/SMS status

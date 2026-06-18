@@ -1,7 +1,7 @@
 import { SignUpButton, SignInButton, UserButton } from "@clerk/nextjs";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
-import { getMonthlyUsage, getAnonymousMonthlyUsage, incrementAnonymousUsage, getTierConfig, getCurrentMonth } from "@/lib/tiers";
+import { getMonthlyUsage, getAnonymousMonthlyUsage, incrementAnonymousUsage, getTierConfig, getCurrentMonth, resolveUserTier } from "@/lib/tiers";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -19,12 +19,14 @@ export default async function HomePage() {
 
   if (userId) {
     const dbUser = await prisma.user.findUnique({ where: { id: userId } });
-    if (dbUser && !dbUser.smsConsent) redirect("/terms");
+    const tier = resolveUserTier(dbUser);
 
-    const tier = (dbUser?.tier as "anonymous" | "free" | "pro") ?? "free";
+    if (dbUser && !dbUser.termsAcceptedAt) redirect("/terms");
+
     const config = getTierConfig(tier);
     const usage = dbUser ? await getMonthlyUsage(userId) : 0;
     const remaining = config.sessionsPerMonth === Infinity ? null : config.sessionsPerMonth - usage;
+    const needsPhoneUpgrade = tier === "free";
 
     async function createSession(formData: FormData) {
       "use server";
@@ -44,11 +46,15 @@ export default async function HomePage() {
         create: { id: userId, email: email || `user-${userId}@offerfu.com`, phone },
       });
 
-      const tier = (await prisma.user.findUnique({ where: { id: userId } }))?.tier ?? "free";
-      const config = getTierConfig(tier as "anonymous" | "free" | "pro");
+      const freshUser = await prisma.user.findUnique({ where: { id: userId } });
+      const tier = resolveUserTier(freshUser);
+      const config = getTierConfig(tier);
       const usage = await getMonthlyUsage(userId);
 
       if (usage >= config.sessionsPerMonth) {
+        if (tier === "free") {
+          redirect("/pricing?limit=free");
+        }
         redirect("/pricing?limit=reached");
       }
 
@@ -83,6 +89,14 @@ export default async function HomePage() {
                 <span className="text-sm text-zinc-500 dark:text-zinc-400">
                   {remaining} session{remaining !== 1 ? "s" : ""} left this month
                 </span>
+              )}
+              {needsPhoneUpgrade && (
+                <a
+                  href="/pricing"
+                  className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800"
+                >
+                  Upgrade to unlimited
+                </a>
               )}
               <UserButton />
             </div>
@@ -228,26 +242,26 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-8 text-left sm:grid-cols-3">
-          <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Call 1</div>
-            <h3 className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">The Value Call</h3>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Deliver something genuinely useful. Ask for nothing.
+        <div className="mt-12 grid gap-4 text-left sm:grid-cols-3">
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Free</div>
+            <h3 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">1 session</h3>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              Try it. No sign-up needed.
             </p>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Call 2</div>
-            <h3 className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">The Follow-Up</h3>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Confirm the value landed. Deliver again. Plant a seed.
+          <div className="rounded-xl border-2 border-zinc-900 bg-white p-5 dark:border-zinc-100 dark:bg-zinc-950">
+            <div className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Email</div>
+            <h3 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">3 sessions/mo</h3>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              Sign up free. Save your scripts.
             </p>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Call 3</div>
-            <h3 className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">The Ask</h3>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              You&apos;ve earned the right. Make a specific, direct ask.
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Phone</div>
+            <h3 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Unlimited</h3>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              Add your phone. Export + GPT-4o.
             </p>
           </div>
         </div>
