@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import { AcceptTermsForm } from "./accept-terms-form";
@@ -9,7 +9,10 @@ export default async function TermsPage() {
 
   const dbUser = await prisma.user.findUnique({ where: { id: userId } });
 
-  if (dbUser?.termsAcceptedAt) redirect("/");
+  if (dbUser?.termsAcceptedAt && dbUser?.smsConsent) redirect("/");
+
+  const user = await currentUser();
+  const phone = user?.phoneNumbers?.[0]?.phoneNumber ?? null;
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
@@ -17,7 +20,7 @@ export default async function TermsPage() {
         Terms &amp; Conditions
       </h1>
       <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-        Last updated: June 17, 2026
+        Last updated: June 18, 2026
       </p>
 
       <div className="mt-8 space-y-6 text-sm text-zinc-700 dark:text-zinc-300">
@@ -112,17 +115,35 @@ export default async function TermsPage() {
             the application owner.
           </p>
         </section>
+
+        <section>
+          <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+            9. SMS Communications
+          </h2>
+          <p className="mt-2">
+            By providing your phone number and checking the SMS consent box below, you agree to receive text messages from OfferFu. These may include:
+          </p>
+          <ul className="mt-2 ml-4 list-disc space-y-1">
+            <li>Verification codes for account security</li>
+            <li>Notifications about your generated scripts</li>
+            <li>Marketing messages about our services and products</li>
+            <li>Follow-up communications related to your use of the tool</li>
+          </ul>
+          <p className="mt-2">
+            Message frequency varies. Standard message and data rates may apply. You can opt out at any time by replying STOP to any message or contacting us. We do not sell your phone number to third parties.
+          </p>
+        </section>
       </div>
 
       <div className="mt-10 rounded-lg border border-zinc-200 bg-amber-50 p-4 dark:border-zinc-700 dark:bg-amber-950">
         <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
           Important: By accepting these terms, you acknowledge that the
-          application owner can read all your chat messages and generated scripts.
-          This access is part of how we operate and improve the tool.
+          application owner can read all your chat messages and generated scripts,
+          and you consent to receiving SMS messages from OfferFu.
         </p>
       </div>
 
-      <AcceptTermsForm />
+      <AcceptTermsForm phone={phone} />
     </div>
   );
 }

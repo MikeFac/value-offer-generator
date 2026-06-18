@@ -10,6 +10,7 @@ type SessionData = {
   valueOffer: unknown | null;
   scripts: unknown | null;
   isAnonymous: boolean;
+  canSaveExport: boolean;
   messages: {
     id: string;
     role: string;
@@ -39,9 +40,10 @@ export default async function ChatPage({
   if (session.userId && !userId) redirect("/");
   if (session.userId && userId && session.userId !== userId) redirect("/");
 
-  if (userId && !isAnonymous) {
+  let canSaveExport = false;
+  if (userId) {
     const dbUser = await prisma.user.findUnique({ where: { id: userId } });
-    if (dbUser && !dbUser.termsAcceptedAt) redirect("/terms");
+    canSaveExport = dbUser?.smsConsent === true;
   }
 
   const sessionData: SessionData = {
@@ -51,6 +53,7 @@ export default async function ChatPage({
     valueOffer: session.valueOffer,
     scripts: session.scripts,
     isAnonymous,
+    canSaveExport,
     messages: session.messages.map((m) => ({
       id: m.id,
       role: m.role,

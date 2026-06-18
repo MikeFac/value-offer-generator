@@ -9,10 +9,15 @@ datasource db {
 
 model User {
   id                  String    @id @default(cuid())
-  email               String    @unique
+  phone               String?   @unique
+  email               String?   @unique
   name                String?
   role                String    @default("bd_strategist")
   tier                String    @default("free")
+  phoneVerified       Boolean   @default(false) @map("phone_verified")
+  smsConsent          Boolean   @default(false) @map("sms_consent")
+  smsConsentAt        DateTime? @map("sms_consent_at")
+  smsConsentText      String?   @map("sms_consent_text")
   termsAcceptedAt     DateTime? @map("terms_accepted_at")
   stripeCustomerId    String?   @map("stripe_customer_id")
   stripeSubscriptionId String? @map("stripe_subscription_id")
@@ -20,6 +25,7 @@ model User {
 
   sessions      Session[]
   monthlyUsages MonthlyUsage[]
+  smsLogs       SmsLog[]
 
   @@map("users")
 }
@@ -69,4 +75,19 @@ model MonthlyUsage {
   @@unique([userId, month])
   @@unique([anonymousId, month])
   @@map("monthly_usages")
+}
+
+model SmsLog {
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  phone      String
+  type       String
+  message    String
+  providerId String?  @map("provider_id")
+  status     String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("sms_logs")
 }

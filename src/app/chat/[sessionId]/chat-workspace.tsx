@@ -19,6 +19,7 @@ type Session = {
   valueOffer: unknown | null;
   scripts: unknown | null;
   isAnonymous: boolean;
+  canSaveExport: boolean;
   messages: Message[];
 };
 
@@ -189,6 +190,7 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const isAnonymous = initialSession.isAnonymous;
+  const canSaveExport = initialSession.canSaveExport;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -307,13 +309,20 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
     complete: "Complete",
   };
 
+  const showSaveExportGate = !canSaveExport;
+  const gateMessage = isAnonymous
+    ? "Sign up free to save and export your scripts."
+    : "Accept terms & SMS consent to save and export.";
+  const gateAction = isAnonymous ? "/sign-up" : "/terms";
+  const gateLabel = isAnonymous ? "Sign Up Free" : "Accept Terms";
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-3 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push("/")}
-            className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="text-sm text-zinc-500 hover:text-zinc-900 dark:zinc-400 dark:hover:text-zinc-100"
           >
             ← Back
           </button>
@@ -431,16 +440,16 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
           </div>
           {currentScripts !== null && (
             <div className="border-t border-zinc-200 bg-zinc-50 p-4 space-y-2 dark:border-zinc-800 dark:bg-zinc-950">
-              {isAnonymous ? (
+              {showSaveExportGate ? (
                 <div className="rounded-lg border border-zinc-200 bg-white p-4 text-center dark:border-zinc-700 dark:bg-zinc-900">
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Sign up free to save and export your scripts.
+                    {gateMessage}
                   </p>
                   <a
-                    href="/sign-up"
+                    href={gateAction}
                     className="mt-2 inline-block rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
                   >
-                    Sign Up Free
+                    {gateLabel}
                   </a>
                 </div>
               ) : (

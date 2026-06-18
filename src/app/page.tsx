@@ -19,7 +19,7 @@ export default async function HomePage() {
 
   if (userId) {
     const dbUser = await prisma.user.findUnique({ where: { id: userId } });
-    if (dbUser && !dbUser.termsAcceptedAt) redirect("/terms");
+    if (dbUser && !dbUser.smsConsent) redirect("/terms");
 
     const tier = (dbUser?.tier as "anonymous" | "free" | "pro") ?? "free";
     const config = getTierConfig(tier);
@@ -33,14 +33,15 @@ export default async function HomePage() {
 
       const user = await currentUser();
       const email = user?.emailAddresses?.[0]?.emailAddress ?? "";
+      const phone = user?.phoneNumbers?.[0]?.phoneNumber ?? null;
       const { userId } = await auth();
 
-      if (!userId) redirect(`/sign-in?redirect_url=/?vertical=${encodeURIComponent(vertical)}`);
+      if (!userId) redirect("/sign-up");
 
       await prisma.user.upsert({
         where: { id: userId },
-        update: { email },
-        create: { id: userId, email },
+        update: { email: email || undefined, phone: phone || undefined },
+        create: { id: userId, email: email || `user-${userId}@offerfu.com`, phone },
       });
 
       const tier = (await prisma.user.findUnique({ where: { id: userId } }))?.tier ?? "free";
@@ -75,7 +76,7 @@ export default async function HomePage() {
         <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
             <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              Value Offer Generator
+              OfferFu
             </h1>
             <div className="flex items-center gap-3">
               {remaining !== null && (
@@ -158,7 +159,7 @@ export default async function HomePage() {
     if (anonymousId) {
       const usage = await getAnonymousMonthlyUsage(anonymousId);
       if (usage >= 1) {
-        redirect("/pricing?limit=anonymous");
+        redirect("/sign-up");
       }
     } else {
       anonymousId = crypto.randomUUID();
@@ -185,11 +186,11 @@ export default async function HomePage() {
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-            Value Offer Generator
+            OfferFu
           </h1>
           <div className="flex items-center gap-3">
-            <SignInButton mode="modal" />
-            <SignUpButton mode="modal">
+            <SignInButton mode="redirect" />
+            <SignUpButton mode="redirect">
               <button className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300">
                 Sign Up Free
               </button>
