@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REMOTE="root@109.123.227.158"
-REMOTE_DIR="/home/offerfu/value-offer-generator"
+PROD_DIR="/var/www/offerfu"
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "==> Syncing files to production (excluding .env, .next, node_modules, .git)..."
@@ -11,16 +11,16 @@ rsync -avz \
   --exclude='node_modules' \
   --exclude='.git' \
   --exclude='.env' \
-  "$LOCAL_DIR/" "$REMOTE:$REMOTE_DIR/"
+  "$LOCAL_DIR/" "$REMOTE:$PROD_DIR/"
 
 echo "==> Installing dependencies..."
-ssh "$REMOTE" "cd $REMOTE_DIR && npm install"
+ssh "$REMOTE" "cd $PROD_DIR && npm install"
 
 echo "==> Running database migrations..."
-ssh "$REMOTE" "cd $REMOTE_DIR && npx prisma migrate deploy"
+ssh "$REMOTE" "cd $PROD_DIR && npx prisma migrate deploy"
 
 echo "==> Building..."
-ssh "$REMOTE" "cd $REMOTE_DIR && rm -rf .next && npm run build"
+ssh "$REMOTE" "cd $PROD_DIR && rm -rf .next && npm run build"
 
 echo "==> Restarting service..."
 ssh "$REMOTE" "systemctl restart offerfu"
