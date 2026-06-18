@@ -333,7 +333,7 @@ export function ChatWorkspace({ session: initialSession }: { session: Session })
                       {saved ? "Saved ✓" : saving ? "Saving..." : "Save Script"}
                     </button>
                     <button onClick={() => setShowPhoneModal(true)} className="w-full rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">
-                      Add Phone to Export & Unlock Unlimited
+                      Book a Discovery Call — Unlock Unlimited
                     </button>
                   </>
                 )}

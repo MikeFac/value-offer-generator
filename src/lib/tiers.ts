@@ -1,10 +1,13 @@
 import { prisma } from "./db/prisma";
+import { MODEL_LABELS, ALLOWED_MODELS } from "./models";
+
+export { MODEL_LABELS, ALLOWED_MODELS };
 
 export const TIERS = {
-  anonymous: { sessionsPerMonth: 1, messagesPerSession: 30, model: "gpt-4o-mini", canSave: false, canExport: false },
-  free:      { sessionsPerMonth: 3, messagesPerSession: 30, model: "gpt-4o-mini", canSave: true,  canExport: false },
-  phone:     { sessionsPerMonth: Infinity, messagesPerSession: 120, model: "gpt-4o", canSave: true, canExport: true },
-  pro:       { sessionsPerMonth: Infinity, messagesPerSession: Infinity, model: "gpt-4o", canSave: true, canExport: true },
+  anonymous: { sessionsPerMonth: 1, messagesPerSession: 30, model: "openai/gpt-4o-mini", canSave: false, canExport: false, label: "Try It Free", shortLabel: "Free", cta: "Start Free Session", description: "No account needed", features: ["1 session", "GPT-4o Mini model", "No save or export", "No registration required"] },
+  free:      { sessionsPerMonth: 3, messagesPerSession: 30, model: "openai/gpt-4o-mini", canSave: true,  canExport: false, label: "Email", shortLabel: "Email", cta: "Sign Up Free", description: "Save scripts, book a discovery call", features: ["3 sessions/month", "GPT-4o Mini model", "Save scripts", "Session library"] },
+  phone:     { sessionsPerMonth: Infinity, messagesPerSession: 120, model: "openai/gpt-4o", canSave: true, canExport: true, label: "Discovery Call", shortLabel: "Phone", cta: "Book Discovery Call", description: "Unlock unlimited + talk to us about growing your business", features: ["Unlimited sessions", "GPT-4o model", "Save & export scripts", "Book a free discovery call"] },
+  pro:       { sessionsPerMonth: Infinity, messagesPerSession: Infinity, model: "openai/gpt-4o", canSave: true, canExport: true, label: "Pro", shortLabel: "Pro", cta: "Pro Access", description: "Full access, managed by OfferFu", features: ["Unlimited everything", "GPT-4o model", "Priority support", "Custom integrations"] },
 } as const;
 
 export type Tier = keyof typeof TIERS;

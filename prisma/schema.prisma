@@ -93,3 +93,10 @@ model SmsLog {
 
   @@map("sms_logs")
 }
+
+model AppSettings {
+  id    String @id @default("default")
+  model String @default("gpt-4o-mini")
+
+  @@map("app_settings")
+}

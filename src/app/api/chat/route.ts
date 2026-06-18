@@ -3,17 +3,10 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import { buildSystemPrompt, advancePhase, detectPhaseFromContent } from "@/lib/ai";
 import { createMessage } from "@/lib/db/session";
-import OpenAI from "openai";
+import { getEffectiveModel, getClientForModel, getModelIdForProvider } from "@/lib/model";
+import { resolveUserTier } from "@/lib/tiers";
 
 const MAX_MESSAGES_FREE = 30;
-
-function getOpenAIClient() {
-  return new OpenAI({ timeout: 120_000 });
-}
-
-function getModelForSession(session: { model: string }): string {
-  return session.model || "gpt-4o-mini";
-}
 
 export const maxDuration = 120;
 
@@ -40,11 +33,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (session.messageCount >= MAX_MESSAGES_FREE && session.model === "gpt-4o-mini") {
+  let effectiveTier: string = "anonymous";
+  if (userId) {
+    const dbUser = await prisma.user.findUnique({ where: { id: userId } });
+    effectiveTier = dbUser ? resolveUserTier(dbUser) : "anonymous";
+  }
+
+  const model = await getEffectiveModel(effectiveTier as "anonymous" | "free" | "phone" | "pro");
+
+  if (session.messageCount >= MAX_MESSAGES_FREE && model === "openai/gpt-4o-mini") {
     return NextResponse.json(
       { error: "Message limit reached for this session. Sign up for unlimited access." },
       { status: 429 }
     );
+  }
+
+  if (session.model !== model) {
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: { model },
+    });
   }
 
   const phaseLabel = getPhaseLabel(session.status);
@@ -63,17 +71,18 @@ export async function POST(req: NextRequest) {
   });
 
   const recentMessages = previousMessages.slice(-20);
+  const systemPrompt = buildSystemPrompt(phaseLabel);
+
+  const client = getClientForModel(model);
+  const providerModel = getModelIdForProvider(model);
+
   const chatHistory = recentMessages.map((m) => ({
     role: m.role as "user" | "assistant",
     content: m.content,
   }));
 
-  const systemPrompt = buildSystemPrompt(phaseLabel);
-  const model = getModelForSession(session);
-
-  const openai = getOpenAIClient();
-  const stream = await openai.chat.completions.create({
-    model,
+  const stream = await client.chat.completions.create({
+    model: providerModel,
     messages: [
       { role: "system", content: systemPrompt },
       ...chatHistory,
@@ -83,6 +92,7 @@ export async function POST(req: NextRequest) {
 
   let fullContent = "";
   const encoder = new TextEncoder();
+
   const readable = new ReadableStream({
     async start(controller) {
       for await (const chunk of stream) {

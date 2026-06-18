@@ -1,6 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { MODEL_LABELS } from "@/lib/tiers";
+import { ModelSettings } from "@/components/model-settings";
 
 export default async function AdminPage({
   searchParams,
@@ -123,6 +125,16 @@ export default async function AdminPage({
             >
               Users ({users.length})
             </a>
+            <a
+              href="/admin?tab=settings"
+              className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                activeTab === "settings"
+                  ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              }`}
+            >
+              Settings
+            </a>
           </nav>
 
           <form method="get" className="flex gap-2">
@@ -174,7 +186,7 @@ export default async function AdminPage({
                         {statusLabels[s.status] ?? s.status}
                       </span>
                       <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-                        {s.model}
+                        {MODEL_LABELS[s.model] ?? s.model}
                       </span>
                       <span className="text-sm text-zinc-600 dark:text-zinc-400">
                         {s.user?.email ?? s.user?.phone ?? (s.anonymousId ? `anon:${s.anonymousId.slice(0, 8)}...` : s.userId?.slice(0, 12) ?? "unknown")}
@@ -271,6 +283,21 @@ export default async function AdminPage({
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+          <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">AI Model Settings</h2>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Choose which AI model powers script generation for phone and pro tier users. Anonymous and email tiers always use GPT-4o Mini.
+            </p>
+            <div className="mt-2 rounded-md bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+              OpenAI models use the OPENAI_API_KEY directly. All other models route through OpenRouter (OPENROUTER_API_KEY).
+            </div>
+            <div className="mt-6">
+              <ModelSettings />
             </div>
           </div>
         )}

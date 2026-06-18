@@ -93,7 +93,7 @@ export default async function HomePage() {
                   href="/pricing"
                   className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800"
                 >
-                  Add Phone for Unlimited
+                  Book Discovery Call
                 </a>
               )}
               <UserButton />
@@ -182,7 +182,7 @@ export default async function HomePage() {
         anonymousId,
         verticalName: vertical.trim(),
         status: "discovering",
-        model: "gpt-4o-mini",
+        model: "openai/gpt-4o-mini",
       },
     });
 
@@ -240,7 +240,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-4 text-left sm:grid-cols-3">
+          <div className="mt-12 grid gap-4 text-left sm:grid-cols-3">
           <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
             <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Free</div>
             <h3 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">1 session</h3>
@@ -255,11 +255,11 @@ export default async function HomePage() {
               Sign up free. Save your scripts.
             </p>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Phone</div>
-            <h3 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Unlimited</h3>
+          <div className="rounded-xl border border-amber-400 bg-amber-50 p-5 dark:border-amber-600 dark:bg-amber-950">
+            <div className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-300">Discovery Call</div>
+            <h3 className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Unlimited + free call</h3>
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-              Add your phone. Export + GPT-4o.
+              Add your phone. We&apos;ll book a call about growing your business.
             </p>
           </div>
         </div>

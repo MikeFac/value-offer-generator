@@ -83,10 +83,10 @@ export function PhoneVerificationModal({ onSuccess }: { onSuccess: () => void })
         {step === "phone" ? (
           <>
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              Add Your Phone Number
+              Book Your Discovery Call
             </h2>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Add your phone number to unlock unlimited sessions, script export, and the GPT-4o model.
+              Add your phone number to unlock unlimited scripts, GPT-4o, and exports — and we&apos;ll reach out to book a free 15-minute discovery call about growing your business. Database reactivation, outbound campaigns, AI receptionist, or delivery automation — we&apos;ll find what fits.
             </p>
 
             <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
@@ -181,7 +181,7 @@ export function PhoneVerificationModal({ onSuccess }: { onSuccess: () => void })
                 disabled={loading}
                 className="w-full rounded-lg bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
               >
-                {loading ? "Verifying..." : "Verify & Upgrade"}
+                {loading ? "Verifying..." : "Verify & Book Discovery Call"}
               </button>
 
               <button
