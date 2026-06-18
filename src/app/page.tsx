@@ -79,9 +79,16 @@ export default async function HomePage() {
       <div className="flex flex-1 flex-col">
         <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-            <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              OfferFu
-            </h1>
+            <div className="flex items-center gap-2">
+              <img
+                src="/offerfu-logo.png"
+                alt="OfferFu Logo"
+                className="h-8 w-8 rounded-lg object-cover"
+              />
+              <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                OfferFu
+              </h1>
+            </div>
             <div className="flex items-center gap-3">
               {remaining !== null && (
                 <span className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -101,32 +108,50 @@ export default async function HomePage() {
           </div>
         </header>
 
-        <main className="mx-auto flex max-w-3xl flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
-            Sell by giving first.
-          </h2>
-          <p className="mt-4 max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
-            The fastest path to a sale is to not sell on the first two calls.
-            Deliver value, build trust, then ask for business. This tool helps you
-            craft a free value offer and a complete three-call script for any
-            vertical.
-          </p>
+        <main className="mx-auto max-w-5xl flex-1 px-6 pt-4 pb-12 lg:pt-8 lg:pb-20">
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-start">
+            <div className="flex flex-col items-center text-center lg:col-span-8 lg:items-start lg:text-left">
+              <h2 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
+                Value Offer Generator
+              </h2>
+              <p className="mt-6 text-xl font-medium text-zinc-600 dark:text-zinc-400">
+                Grow by giving first
+              </p>
+              <p className="mt-6 max-w-xl text-base text-zinc-500 dark:text-zinc-400">
+                The fastest path to a sale is to not sell on the first two calls.
+                Deliver value, build trust, then ask for business. This tool helps you
+                craft a free value offer and a complete three-call script for any
+                vertical.
+              </p>
 
-          <div className="mt-8 w-full max-w-md">
-            <form action={createSession} className="flex gap-2">
-              <input
-                type="text"
-                name="vertical"
-                placeholder={VERTICALS[0]}
-                className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-              />
-              <button
-                type="submit"
-                className="rounded-lg bg-zinc-900 px-6 py-3 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-              >
-                Start
-              </button>
-            </form>
+              <div className="mt-8 w-full max-w-md">
+                <form action={createSession} className="flex gap-2">
+                  <input
+                    type="text"
+                    name="vertical"
+                    placeholder={VERTICALS[0]}
+                    className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-zinc-900 px-6 py-3 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 whitespace-nowrap"
+                  >
+                    Start
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div className="relative flex justify-center lg:col-span-4">
+              <div className="absolute -inset-4 rounded-2xl bg-gradient-to-tr from-blue-500/10 to-amber-500/10 opacity-60 blur-2xl dark:from-blue-500/20 dark:to-amber-500/20" />
+              <div className="relative overflow-hidden [mask-image:radial-gradient(circle_at_center,white_65%,transparent_100%)]">
+                <img
+                  src="/offerfu-hero.png"
+                  alt="Value Offer and Sales Script Generator Visual"
+                  className="w-full max-w-[300px] object-cover transition-transform duration-700 hover:scale-[1.03]"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="mt-16 grid gap-8 text-left sm:grid-cols-3">
@@ -197,9 +222,16 @@ export default async function HomePage() {
     <div className="flex flex-1 flex-col">
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-            OfferFu
-          </h1>
+          <div className="flex items-center gap-2">
+            <img
+              src="/offerfu-logo.png"
+              alt="OfferFu Logo"
+              className="h-8 w-8 rounded-lg object-cover"
+            />
+            <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              OfferFu
+            </h1>
+          </div>
           <div className="flex items-center gap-3">
             <SignInButton mode="redirect" />
             <SignUpButton mode="redirect">
@@ -211,33 +243,51 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-3xl flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-        <h2 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
-          Sell by giving first.
-        </h2>
-        <p className="mt-4 max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
-          Try it free — no sign-up required. Enter your target vertical and get a
-          complete three-call script powered by AI.
-        </p>
+      <main className="mx-auto max-w-5xl flex-1 px-6 pt-4 pb-12 lg:pt-8 lg:pb-20">
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-start">
+          <div className="flex flex-col items-center text-center lg:col-span-8 lg:items-start lg:text-left">
+            <h2 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
+              Value Offer Generator
+            </h2>
+            <p className="mt-6 text-xl font-medium text-zinc-600 dark:text-zinc-400">
+              Grow by giving first
+            </p>
+            <p className="mt-6 max-w-xl text-base text-zinc-500 dark:text-zinc-400">
+              Try it free — no sign-up required. Enter your target vertical and get a
+              complete three-call script powered by AI.
+            </p>
 
-        <div className="mt-8 w-full max-w-md">
-          <form action={createAnonymousSession} className="flex gap-2">
-            <input
-              type="text"
-              name="vertical"
-              placeholder={VERTICALS[0]}
-              className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-            />
-            <button
-              type="submit"
-              className="rounded-lg bg-zinc-900 px-6 py-3 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-            >
-              Start Free
-            </button>
-          </form>
-          <p className="mt-3 text-xs text-zinc-400">
-            No account needed for your first session. Sign up to save and export.
-          </p>
+            <div className="mt-8 w-full max-w-md">
+              <form action={createAnonymousSession} className="flex gap-2">
+                <input
+                  type="text"
+                  name="vertical"
+                  placeholder={VERTICALS[0]}
+                  className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                />
+                <button
+                  type="submit"
+                  className="rounded-lg bg-zinc-900 px-6 py-3 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 whitespace-nowrap"
+                >
+                  Start Free
+                </button>
+              </form>
+              <p className="mt-3 text-xs text-zinc-400">
+                No account needed for your first session. Sign up to save and export.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative flex justify-center lg:col-span-4">
+            <div className="absolute -inset-4 rounded-2xl bg-gradient-to-tr from-blue-500/10 to-amber-500/10 opacity-60 blur-2xl dark:from-blue-500/20 dark:to-amber-500/20" />
+            <div className="relative overflow-hidden [mask-image:radial-gradient(circle_at_center,white_65%,transparent_100%)]">
+              <img
+                src="/offerfu-hero.png"
+                alt="Value Offer and Sales Script Generator Visual"
+                className="w-full max-w-[300px] object-cover transition-transform duration-700 hover:scale-[1.03]"
+              />
+            </div>
+          </div>
         </div>
 
           <div className="mt-12 grid gap-4 text-left sm:grid-cols-3">

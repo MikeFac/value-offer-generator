@@ -24,8 +24,13 @@ export default async function PricingPage() {
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-            OfferFu
+          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-zinc-900 dark:text-zinc-100">
+            <img
+              src="/offerfu-logo.png"
+              alt="OfferFu Logo"
+              className="h-8 w-8 rounded-lg object-cover"
+            />
+            <span>OfferFu</span>
           </Link>
           <div className="flex items-center gap-3">
             {userId ? <UserButton /> : <SignUpButton mode="redirect"><button className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700">Sign Up Free</button></SignUpButton>}
