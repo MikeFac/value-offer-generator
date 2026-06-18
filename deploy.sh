@@ -19,8 +19,8 @@ ssh "$REMOTE" "cd $REMOTE_DIR && npm install"
 echo "==> Running database migrations..."
 ssh "$REMOTE" "cd $REMOTE_DIR && npx prisma migrate deploy"
 
-echo "==> Building (with production Clerk key)..."
-ssh "$REMOTE" "cd $REMOTE_DIR && rm -rf .next && NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_Y2xlcmsub2ZmZXJmdS5jb20k npm run build"
+echo "==> Building..."
+ssh "$REMOTE" "cd $REMOTE_DIR && rm -rf .next && npm run build"
 
 echo "==> Restarting service..."
 ssh "$REMOTE" "systemctl restart offerfu"
