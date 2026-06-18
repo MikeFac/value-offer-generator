@@ -15,7 +15,7 @@ export function Footer() {
           </nav>
         </div>
         <p className="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
-          &copy; {new Date().getFullYear()} SalesFu AI Pty Ltd. All rights reserved.
+          &copy; {new Date().getFullYear()} SalesFu AI. All rights reserved.
         </p>
       </div>
     </footer>

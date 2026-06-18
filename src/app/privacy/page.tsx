@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">1. Who We Are</h2>
           <p className="mt-2">
-            OfferFu is operated by SalesFu AI Pty Ltd (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;). For any privacy-related inquiries, contact us at <a href="mailto:hello@salesfu.ai" className="underline hover:text-zinc-900 dark:hover:text-zinc-100">hello@salesfu.ai</a>.
+            OfferFu is operated by SalesFu AI (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;). For any privacy-related inquiries, contact us at <a href="mailto:hello@salesfu.ai" className="underline hover:text-zinc-900 dark:hover:text-zinc-100">hello@salesfu.ai</a>.
           </p>
         </section>
 
@@ -130,7 +130,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">14. Contact</h2>
           <p className="mt-2">
             For any questions about this Privacy Policy or to exercise your data rights, contact:<br /><br />
-            <strong>SalesFu AI Pty Ltd</strong><br />
+            <strong>SalesFu AI</strong><br />
             Attn: Michael Fackerell<br />
             Email: <a href="mailto:hello@salesfu.ai" className="underline hover:text-zinc-900 dark:hover:text-zinc-100">hello@salesfu.ai</a>
           </p>

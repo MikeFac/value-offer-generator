@@ -14,7 +14,7 @@ export default function TermsAndConditionsPage() {
         <section>
           <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">1. Acceptance of Terms</h2>
           <p className="mt-2">
-            By accessing or using OfferFu (&quot;the Service&quot;), operated by SalesFu AI Pty Ltd, you agree to be bound by these Terms and Conditions. If you do not agree, do not use the Service.
+            By accessing or using OfferFu (&quot;the Service&quot;), operated by SalesFu AI, you agree to be bound by these Terms and Conditions. If you do not agree, do not use the Service.
           </p>
         </section>
 
@@ -86,7 +86,7 @@ export default function TermsAndConditionsPage() {
         <section>
           <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">10. Intellectual Property</h2>
           <p className="mt-2">
-            The Service, its design, logos, and underlying technology are the property of SalesFu AI Pty Ltd. You may not copy, modify, distribute, or create derivative works from the Service without our written permission. Your use of the Service does not grant you any intellectual property rights in the Service itself.
+            The Service, its design, logos, and underlying technology are the property of SalesFu AI. You may not copy, modify, distribute, or create derivative works from the Service without our written permission. Your use of the Service does not grant you any intellectual property rights in the Service itself.
           </p>
         </section>
 
@@ -100,14 +100,14 @@ export default function TermsAndConditionsPage() {
         <section>
           <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">12. Limitation of Liability</h2>
           <p className="mt-2">
-            To the fullest extent permitted by law, SalesFu AI Pty Ltd and its directors, employees, and agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of or inability to use the Service, even if we have been advised of the possibility of such damages.
+            To the fullest extent permitted by law, SalesFu AI and its directors, employees, and agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of or inability to use the Service, even if we have been advised of the possibility of such damages.
           </p>
         </section>
 
         <section>
           <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">13. Indemnification</h2>
           <p className="mt-2">
-            You agree to indemnify and hold harmless SalesFu AI Pty Ltd, its directors, employees, and agents from any claims, damages, losses, or expenses arising from your use of the Service or your violation of these Terms.
+            You agree to indemnify and hold harmless SalesFu AI, its directors, employees, and agents from any claims, damages, losses, or expenses arising from your use of the Service or your violation of these Terms.
           </p>
         </section>
 
