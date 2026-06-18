@@ -29,15 +29,17 @@ export async function sendSmsOtp(phone: string, code: string, userId?: string): 
         to: phone,
         text: message,
         messaging_profile_id: TELNYX_MESSAGING_PROFILE_ID || undefined,
+        sender_id: "OfferFu",
       }),
     });
 
     const data = await res.json();
 
-    if (!res.ok) {
-      console.error("Telnyx SMS error:", data);
-      await logSms(userId, phone, "otp_verify", message, null, "failed");
-      return { success: false, error: data.errors?.[0]?.detail || "Failed to send SMS" };
+      if (!res.ok) {
+        console.error("Telnyx SMS error:", data);
+        const detail = data.errors?.[0]?.detail || data.errors?.[0]?.title || "Failed to send SMS";
+        await logSms(userId, phone, "otp_verify", message, null, "failed");
+        return { success: false, error: detail };
     }
 
     const providerId = data.data?.id || null;
