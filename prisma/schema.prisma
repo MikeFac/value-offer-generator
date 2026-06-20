@@ -43,13 +43,39 @@ model Session {
   model          String   @default("gpt-4o-mini")
   messageCount   Int      @default(0) @map("message_count")
   status         String   @default("discovering")
+  nicheSlug      String?  @map("niche_slug")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   user     User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  niche    Niche?   @relation(fields: [nicheSlug], references: [slug], onDelete: SetNull)
   messages Message[]
 
+  @@index([nicheSlug])
   @@map("sessions")
+}
+
+model Niche {
+  slug                String   @id
+  country             String   @default("US") @map("country")
+  countryCode         String   @default("+1") @map("country_code")
+  headline            String
+  subhead             String
+  bodyCopy           String   @map("body_copy")
+  heroImage           String?  @map("hero_image")
+  heroVideo           String?  @map("hero_video")
+  exampleOffer        Json?    @map("example_offer")
+  verticalSeedContext Json?   @map("vertical_seed_context")
+  metaTitle           String?  @map("meta_title")
+  metaDescription     String?  @map("meta_description")
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  sessions Session[]
+
+  @@index([country])
+  @@map("niches")
 }
 
 model Message {
