@@ -62,6 +62,7 @@ model Niche {
   headline            String
   subhead             String
   bodyCopy           String   @map("body_copy")
+  whyItWorks         String?  @map("why_it_works")
   heroImage           String?  @map("hero_image")
   heroVideo           String?  @map("hero_video")
   exampleOffer        Json?    @map("example_offer")
