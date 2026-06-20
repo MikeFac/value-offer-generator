@@ -202,11 +202,22 @@ export default async function NicheLanding({
           <div className="relative flex justify-center lg:col-span-4">
             <div className="absolute -inset-4 rounded-2xl bg-gradient-to-tr from-blue-500/10 to-amber-500/10 opacity-60 blur-2xl dark:from-blue-500/20 dark:to-amber-500/20" />
             <div className="relative overflow-hidden [mask-image:radial-gradient(circle_at_center,white_65%,transparent_100%)]">
-              <img
-                src="/offerfu-hero.png"
-                alt="Value Offer and Sales Script Generator Visual"
-                className="w-full max-w-[300px] object-cover transition-transform duration-700 hover:scale-[1.03]"
-              />
+              {niche.heroVideo ? (
+                <video
+                  src={niche.heroVideo}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full max-w-[300px] object-cover transition-transform duration-700 hover:scale-[1.03]"
+                />
+              ) : (
+                <img
+                  src={niche.heroImage ?? "/offerfu-hero.png"}
+                  alt="Value Offer and Sales Script Generator Visual"
+                  className="w-full max-w-[300px] object-cover transition-transform duration-700 hover:scale-[1.03]"
+                />
+              )}
             </div>
           </div>
         </div>
